@@ -1,28 +1,60 @@
 #include <iostream> 
 #include "tcpClientSocket.h"
 #include <algorithm>
-
+#include <string>
+#include <ctime>
+#include <fstream>
 using namespace std; 
+
+void readHelpFile(string filePath){
+    string line;
+    ifstream file(filePath);
+    if(file.is_open()){
+        while(getline(file,line)){
+            cout << line << "\n";
+        }
+    }
+}
+
 
 int main(int argc, char ** argv)
 {
     
     string command;
     cout << "Starting client example" <<endl; 
-    string serverIP(argv[1]);
-    string username = argv[2];
-    int port = atoi(argv[3]); 
+    //string serverIP(argv[1]);
+    //string username = argv[2];
+    //int port = atoi(argv[3]); 
+     string serverIP("127.0.0.1");
+    string username = "ben";
+    int port = 2000;
 
     cs457::tcpClientSocket clientSocket(serverIP,port);
     int val = clientSocket.connectSocket(); 
     cout << "Client Socket Value after connect = " << val << endl; 
 
-    clientSocket.sendString("Hello Server. How are you? ",false); 
+    //clientSocket.sendString("Hello Server. How are you? ",false); 
     while(cin){
         string command;
         cout << "enter command: ";
         cin >> command;
-        clientSocket.sendString(transform(command.begin(), command.end(),command.begin(), ::toupper), false);
+        if(command == "PING"){
+            clock_t start;
+            start = clock();
+            clientSocket.sendString(command, false);
+            string pong;
+            ssize_t c;
+            tie(pong, c) = clientSocket.recvString(4096,false);
+            double timer = (clock() - start) / (double) CLOCKS_PER_SEC;
+            cout << "server has replied : " << pong << "\n" << "Server response time: " << timer << "\n";           
+        }if(command == "HELP"){
+            clientSocket.sendString(command, false);
+            string help;
+            ssize_t c;
+            tie(help, c) = clientSocket.recvString(4096,false);
+            readHelpFile(help);
+        }
+        
     }
 
     string msg;
