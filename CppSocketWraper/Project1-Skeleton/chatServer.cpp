@@ -7,15 +7,15 @@
 #include "tcpUserSocket.h"
 #include "tcpServerSocket.h"
 #include <fstream>
-
+#include <ctime>
+#include <map>
 using namespace std;
 
 bool ready = true; 
-
+map <string, bool> userList;
 
 int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
 {
-
     cout << "Waiting for message from Client Thread" << id << std::endl;
     string msg;
     ssize_t val;
@@ -23,16 +23,32 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
     while (cont) 
     {
         tie(msg,val) = clientSocket.get()->recvString(); 
+        if(msg.substr(0,2) == "-u"){
+            string user = msg.substr(2);
+            userList.insert(make_pair(user,false));
+
+        }
+        if(msg == "/ISON"){
+            string build = "";
+            for (auto name : userList){
+                build = name.first + " ," + build;
+            }
+            clientSocket.get()->sendString(build);            
+        }
         if(msg == "HELP"){
             clientSocket.get()->sendString("helpfile.txt");            
         }  
-        if (msg == "/DIE") {
+        if (msg == "DIE") {
             cont = false;
         }  
         if (msg == "PING"){
-            cout << "im in here: " << clientSocket.get() <<"\n";
             clientSocket.get()->sendString("PONG", false);
         }  
+        if(msg == "TIME"){
+            time_t current = time(0);
+            string currentTime = ctime(&current);
+            clientSocket.get()->sendString(currentTime, false);
+        }
         if (msg.substr(0,4) == "EXIT")
             cont = false; 
        
@@ -78,8 +94,9 @@ int main(int argc, char * argv[])
     mysocket.listenSocket(); 
     cout << "Waiting to Accept Socket" << std::endl;
     int id = 0; 
-    vector<unique_ptr<thread>> threadList; 
-  
+    vector<unique_ptr<thread>> threadList;
+
+
     while (ready)
     { 
         shared_ptr<cs457::tcpUserSocket> clientSocket;
@@ -90,6 +107,8 @@ int main(int argc, char * argv[])
         unique_ptr<thread> t = make_unique<thread>(cclient,clientSocket,id); 
         threadList.push_back(std::move(t)); 
         
+          
+
         id++; //not the best way to go about it. 
        // threadList.push_back(t); 
        

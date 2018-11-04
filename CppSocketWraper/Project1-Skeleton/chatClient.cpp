@@ -22,22 +22,30 @@ int main(int argc, char ** argv)
     
     string command;
     cout << "Starting client example" <<endl; 
-    //string serverIP(argv[1]);
-    //string username = argv[2];
-    //int port = atoi(argv[3]); 
-     string serverIP("127.0.0.1");
-    string username = "ben";
-    int port = 2000;
+    string serverIP(argv[1]);
+    string username = argv[2];
+    int port = atoi(argv[3]); 
+    //string serverIP("127.0.0.1");
+    //string username = "ben";
+    //int port = 2000;
 
     cs457::tcpClientSocket clientSocket(serverIP,port);
     int val = clientSocket.connectSocket(); 
-    cout << "Client Socket Value after connect = " << val << endl; 
+    cout << "Client Socket Value after connect = " << val << endl;
+    clientSocket.sendString("-u " + username, false);
 
     //clientSocket.sendString("Hello Server. How are you? ",false); 
     while(cin){
         string command;
         cout << "enter command: ";
         cin >> command;
+        if(command == "/ISON"){
+            clientSocket.sendString(command, false);
+            string ison;
+            ssize_t c;
+            tie(ison,c) = clientSocket.recvString(4096,false);
+            cout << ison << '\n';
+        }
         if(command == "PING"){
             clock_t start;
             start = clock();
@@ -53,6 +61,12 @@ int main(int argc, char ** argv)
             ssize_t c;
             tie(help, c) = clientSocket.recvString(4096,false);
             readHelpFile(help);
+        }if(command == "TIME"){
+            clientSocket.sendString(command, false);
+            string serverTime;
+            ssize_t c;
+            tie(serverTime, c) = clientSocket.recvString(4096,false);
+            cout << serverTime << '\n';
         }
         
     }

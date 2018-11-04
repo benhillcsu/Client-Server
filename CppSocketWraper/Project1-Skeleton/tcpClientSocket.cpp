@@ -15,8 +15,6 @@ cs457::tcpClientSocket::tcpClientSocket(string networkAddress, uint portNumber):
 };
 
 
-
-
 void cs457::tcpClientSocket::init()
 {
     //here I may have differences with server 
