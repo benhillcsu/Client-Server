@@ -39,6 +39,12 @@ int main(int argc, char ** argv)
         string command;
         cout << "enter command: ";
         cin >> command;
+        if(command.substr(0,1) == "/"){
+            transform(command.begin(),command.end(),command.begin(), ::toupper);
+        }
+        if (command == "/AWAY"){
+            clientSocket.sendString(command,false);
+        }
         if(command == "/ISON"){
             clientSocket.sendString(command, false);
             string ison;
@@ -46,7 +52,7 @@ int main(int argc, char ** argv)
             tie(ison,c) = clientSocket.recvString(4096,false);
             cout << ison << '\n';
         }
-        if(command == "PING"){
+        if(command == "/PING"){
             clock_t start;
             start = clock();
             clientSocket.sendString(command, false);
@@ -55,13 +61,13 @@ int main(int argc, char ** argv)
             tie(pong, c) = clientSocket.recvString(4096,false);
             double timer = (clock() - start) / (double) CLOCKS_PER_SEC;
             cout << "server has replied : " << pong << "\n" << "Server response time: " << timer << "\n";           
-        }if(command == "HELP"){
+        }if(command == "/HELP"){
             clientSocket.sendString(command, false);
             string help;
             ssize_t c;
             tie(help, c) = clientSocket.recvString(4096,false);
             readHelpFile(help);
-        }if(command == "TIME"){
+        }if(command == "/TIME"){
             clientSocket.sendString(command, false);
             string serverTime;
             ssize_t c;

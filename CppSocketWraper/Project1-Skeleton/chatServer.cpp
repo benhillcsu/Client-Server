@@ -28,6 +28,9 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
             userList.insert(make_pair(user,false));
 
         }
+        if (msg == "/AWAY"){
+            
+        }
         if(msg == "/ISON"){
             string build = "";
             for (auto name : userList){
@@ -35,16 +38,16 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
             }
             clientSocket.get()->sendString(build);            
         }
-        if(msg == "HELP"){
+        if(msg == "/HELP"){
             clientSocket.get()->sendString("helpfile.txt");            
         }  
-        if (msg == "DIE") {
+        if (msg == "/DIE") {
             cont = false;
         }  
-        if (msg == "PING"){
+        if (msg == "/PING"){
             clientSocket.get()->sendString("PONG", false);
         }  
-        if(msg == "TIME"){
+        if(msg == "/TIME"){
             time_t current = time(0);
             string currentTime = ctime(&current);
             clientSocket.get()->sendString(currentTime, false);
