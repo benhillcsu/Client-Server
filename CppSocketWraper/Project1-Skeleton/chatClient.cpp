@@ -44,6 +44,8 @@ int main(int argc, char ** argv)
         }
         if (command == "/AWAY"){
             clientSocket.sendString(command,false);
+            //todo set matching name in map to true if away or false if returning from away
+            
         }
         if(command == "/ISON"){
             clientSocket.sendString(command, false);

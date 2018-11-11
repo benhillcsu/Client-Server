@@ -34,7 +34,7 @@ int cclient(shared_ptr<cs457::tcpUserSocket> clientSocket,int id)
         if(msg == "/ISON"){
             string build = "";
             for (auto name : userList){
-                build = name.first + " ," + build;
+                build = name.first + ", " + build;
             }
             clientSocket.get()->sendString(build);            
         }
